@@ -77,10 +77,9 @@ function jbm_basic_order_report_html() {
 	
 	if( isset($_POST['jbm_order_query']) ) :
 		$args = array(
-			//'date_after' => $start_date.' 00:00:00',
-			//'date_before' => $end_date.' 23:59:59',
-			'date_created' => $end_date.'...'.$start_date,
-			'limit'	=> 200,
+			'date_after' => $start_date.' 00:00:00',
+			'date_before' => $end_date.' 23:59:59',
+			//'date_created' => $start_date.'...'.$end_date,
 			'post_status' => $order_statuss,
 		);
 		$customer_orders = wc_get_orders( $args );
