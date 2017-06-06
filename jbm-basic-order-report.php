@@ -6,14 +6,15 @@ Version: 1.0
 */
 
 function jbm_basic_order_report() {
+	$jb_parent_slug = 'woocommerce';
 	$jb_page_title = 'Basic Order Report';
 	$jb_menu_title = 'Basic Order Report';
 	$jb_capability = 'manage_affiliates';
 	$jb_menu_slug = 'jbm-basic-order-report';
 	$jb_callback = 'jbm_basic_order_report_html';
-	$jb_icon_url = 'dashicons-media-spreadsheet';
-	$jb_menu_position = 120;
-	add_menu_page(  $jb_page_title,  $jb_menu_title,  $jb_capability,  $jb_menu_slug,  $jb_callback,  $jb_icon_url,  $jb_menu_position );
+	//$jb_icon_url = 'dashicons-media-spreadsheet';
+	//$jb_menu_position = 120;
+	add_submenu_page(  $jb_parent_slug, $jb_page_title,  $jb_menu_title,  $jb_capability,  $jb_menu_slug,  $jb_callback );
 }
 
 function jbm_basic_order_report_html() {
