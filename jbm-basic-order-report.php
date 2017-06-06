@@ -93,12 +93,12 @@ function jbm_basic_order_report_html() {
 		$total = 0;
 		foreach ( $customer_orders as $customer_order ) {
 			
-			$order_date = date('Y-m-d', strtotime($customer_order->date_created));
+			$order_date = date_i18n( wc_date_format(), strtotime($customer_order->date_created));
 			if ( ! empty($customer_order->date_paid) ) 
-				$date_paid = date('Y-m-d', strtotime($customer_order->date_paid));
+				$date_paid = date_i18n( wc_date_format(), strtotime($customer_order->date_paid));
 			else $date_paid = '';
 			if ( ! empty($customer_order->date_completed) ) 
-				$date_completed = date('Y-m-d', strtotime($customer_order->date_completed));
+				$date_completed = date_i18n( wc_date_format(), strtotime($customer_order->date_completed));
 			else $date_completed = '';
 			
 			$order_rows .= "
