@@ -104,7 +104,9 @@ function jbm_basic_order_report_html() {
 			
 			$order_rows .= "
 			<tr>
-				<td><a href='/wp-admin/post.php?post=".$customer_order->get_id()."&action=edit' target='_blank'>".$customer_order->get_id()."</a></td>
+				<td><a href='/wp-admin/post.php?post=".$customer_order->get_id()."&action=edit' target='_blank'>".$customer_order->get_id()."</a></td>";
+			if( is_admin() ) $order_rows .= "<td><a href='/wp-admin/admin.php?page=jbm-generate-referrals&order_id=".$customer_order->get_id()."' target='_blank'>".$customer_order->get_id()."</a></td>";
+			$order_rows .= "
 				<td>".$order_date."</td>
 				<td>".$date_paid."</td>
 				<td>".$date_completed."</td>
@@ -125,7 +127,9 @@ function jbm_basic_order_report_html() {
 		$order_rows .= "
 		<tr>
 			<th>Totals</th>
-			<th></th>
+			<th></th>";
+		if( is_admin() ) $order_rows .= "<th></th>";
+		$order_rows .= "
 			<th></th>
 			<th></th>
 			<th></th>
@@ -147,6 +151,7 @@ function jbm_basic_order_report_html() {
 		<thead>
 			<tr>
 				<th>Order#</th>
+				<?php if( is_admin() ) $order_rows .= "<th>Referrals</th>";?>
 				<th>Order Date</th>
 				<th>Paid Date</th>
 				<th>Ship Date</th>
