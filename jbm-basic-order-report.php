@@ -151,7 +151,7 @@ function jbm_basic_order_report_html() {
 		<thead>
 			<tr>
 				<th>Order#</th>
-				<?php if( is_admin() ) $order_rows .= "<th>Referrals</th>";?>
+				<?php if( is_admin() ) echo "<th>Referrals</th>";?>
 				<th>Order Date</th>
 				<th>Paid Date</th>
 				<th>Ship Date</th>
