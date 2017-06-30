@@ -78,9 +78,9 @@ function jbm_basic_order_report_html() {
 	
 	if( isset($_POST['jbm_order_query']) ) :
 		$args = array(
-			'date_after' => $start_date.' 00:00:00',
-			'date_before' => $end_date.' 23:59:59',
-			//'date_created' => $start_date.'...'.$end_date,
+			//'date_after' => $start_date.' 00:00:00',
+			//'date_before' => $end_date.' 23:59:59',
+			'date_created' => $start_date.'...'.$end_date,
 			'limit' => -1,
 			'post_status' => $order_statuss,
 		);
