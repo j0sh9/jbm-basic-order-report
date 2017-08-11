@@ -2,8 +2,13 @@
 /*
 Plugin Name: _Basic Order Report
 Description: Basic Order Report Page
-Version: 1.0
+Version: 1.1
+
+v1.1
+* Updated code for WC 3.0
+* Added order referall amount and status columns
 */
+
 
 function jbm_basic_order_report() {
 	$jb_parent_slug = 'woocommerce';
@@ -28,17 +33,17 @@ function jbm_basic_order_report_html() {
 	} else { 
 		$end_date = date('Y-m-d', strtotime('today'));
 	}
-	
+	$completed_check = $processing_check = $pending_check = $on_hold_check = $refunded_check = $cancelled_check = $failed_check = '';
 	if ( isset($_POST["order_status"]) ) {
 		foreach ( $_POST["order_status"] as $check_status ) {
 			$varvar = str_replace('-','_',$check_status).'_check';
 			${$varvar} = 'checked';
-			$order_statuss[] = 'wc-'.$check_status;
+			$order_statuss[] = $check_status;
 		}
 	} else {
 		$completed_check = 'checked';
 		$completed = 'completed';
-		$order_statuss = array('wc-completed');
+		$order_statuss = array('completed');
 	}
 		
 ?>
@@ -80,6 +85,7 @@ function jbm_basic_order_report_html() {
 		$args = array(
 			//'date_after' => $start_date.' 00:00:00',
 			//'date_before' => $end_date.' 23:59:59',
+			'type' => 'shop_order',
 			'date_created' => $start_date.'...'.$end_date,
 			'limit' => -1,
 			'post_status' => $order_statuss,
@@ -92,14 +98,22 @@ function jbm_basic_order_report_html() {
 		$total_tax = 0;
 		$discount_total = 0;
 		$total = 0;
+		$referrals = new Affiliate_WP_Referrals_DB();
 		foreach ( $customer_orders as $customer_order ) {
-			
+			$referral = $referrals->get_by('reference', $customer_order->get_id());
+			if ( $referral ) {
+				$refamt = $referral->amount;
+				$refstatus = $referral->status;
+			} else {
+				$refamt = '';
+				$refstatus = '';
+			}
 			$order_date = wc_format_datetime( $customer_order->get_date_created(), 'Y-m-d H:i');
-			if ( ! empty($customer_order->date_paid) ) 
-				$date_paid = wc_format_datetime( $customer_order->get_date_paid(), 'Y-m-d H:i' );
+			if ( ! empty($customer_order->get_date_paid) ) 
+				$date_paid = wc_format_datetime( $customer_order->get_date_paid, 'Y-m-d H:i' );
 			else $date_paid = '';
-			if ( ! empty($customer_order->date_completed) ) 
-				$date_completed = wc_format_datetime( $customer_order->get_date_completed(), 'Y-m-d H:i' );
+			if ( ! empty($customer_order->get_date_completed) ) 
+				$date_completed = wc_format_datetime( $customer_order->get_date_completed, 'Y-m-d H:i' );
 			else $date_completed = '';
 			
 			$order_rows .= "
@@ -110,19 +124,21 @@ function jbm_basic_order_report_html() {
 				<td>".$order_date."</td>
 				<td>".$date_paid."</td>
 				<td>".$date_completed."</td>
-				<td><a href='/wp-admin/edit.php?post_status=all&post_type=shop_order&_customer_user=".$customer_order->customer_id."' target='_blank'>".$customer_order->billing_first_name.' '.$customer_order->billing_last_name."</a></td>
-				<td>".$customer_order->status."</td>
-				<td>".number_format($customer_order->subtotal,2)."</td>
-				<td>".number_format($customer_order->shipping_total,2)."</td>
-				<td>".number_format($customer_order->total_tax,2)."</td>
-				<td>".number_format($customer_order->discount_total,2)."</td>
-				<td>".number_format($customer_order->total,2)."</td>
+				<td><a href='/wp-admin/edit.php?post_status=all&post_type=shop_order&_customer_user=".$customer_order->get_user_id()."' target='_blank'>".$customer_order->get_billing_first_name().' '.$customer_order->get_billing_last_name()."</a></td>
+				<td>".$customer_order->get_status()."</td>
+				<td>".number_format($customer_order->get_subtotal(),2)."</td>
+				<td>".number_format($customer_order->get_shipping_total(),2)."</td>
+				<td>".number_format($customer_order->get_total_tax(),2)."</td>
+				<td>".number_format($customer_order->get_discount_total(),2)."</td>
+				<td>".number_format($customer_order->get_total(),2)."</td>
+				<td>".$refamt."</td>
+				<td>".$refstatus."</td>
 			</tr>";
-			$subtotal += $customer_order->subtotal;
-			$shipping_total += $customer_order->shipping_total;
-			$total_tax += $customer_order->total_tax;
-			$discount_total += $customer_order->discount_total;
-			$total += $customer_order->total;
+			$subtotal += $customer_order->get_subtotal();
+			$shipping_total += $customer_order->get_shipping_total();
+			$total_tax += $customer_order->get_total_tax();
+			$discount_total += $customer_order->get_discount_total();
+			$total += $customer_order->get_total();
 		}
 		$order_rows .= "
 		<tr>
@@ -139,6 +155,8 @@ function jbm_basic_order_report_html() {
 			<th>".number_format($total_tax,2)."</th>
 			<th>".number_format($discount_total,2)."</th>
 			<th>".number_format($total,2)."</th>
+			<th></th>
+			<th></th>
 		</tr>";
 
 		echo count($customer_orders)." Orders found.";
@@ -162,6 +180,8 @@ function jbm_basic_order_report_html() {
 				<th>Tax</th>
 				<th>Discounts</th>
 				<th>Total</th>
+				<th>Referral Amount</th>
+				<th>Referral Status</th>
 			</tr>
 		</thead>
 		<tbody>
